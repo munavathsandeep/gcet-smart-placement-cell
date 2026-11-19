@@ -1,0 +1,201 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="edu.gcet.placement.model.User" %>
+<%
+  User activeUser = (session != null) ? (User) session.getAttribute("authUser") : null;
+  String activeRole = (activeUser != null && activeUser.getRole() != null) ? activeUser.getRole().name() : "";
+  String activeName = (activeUser != null && activeUser.getFullName() != null) ? activeUser.getFullName() : "";
+  String ctxPath = request.getContextPath();
+  String baseHref = (ctxPath == null || ctxPath.isEmpty()) ? "/" : (ctxPath.endsWith("/") ? ctxPath : ctxPath + "/");
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <base href="<%= baseHref %>" />
+  <title>GCET Placement Hub | Smart Placement Cell &amp; Skill Matrix Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body data-authenticated="<%= activeUser != null ? "true" : "false" %>" data-role="<%= activeRole %>" data-user="<%= activeName %>">
+  <div id="app">
+    <!-- Login & Institutional Access View -->
+    <section id="login-view" class="login-layout <%= activeUser != null ? "hidden" : "" %>">
+      <div class="login-hero">
+        <img src="images/gcet-campus.png" alt="Geethanjali College of Engineering and Technology Campus" />
+        <div class="login-hero-overlay">
+          <div class="hero-brand-top">
+            <img src="images/gcet-logo.png" alt="GCET Official Crest" class="crest-logo" />
+            <div>
+              <p class="kicker">Smart Placement Cell &amp; Skill Matrix Portal</p>
+              <h2>Geethanjali College of Engineering and Technology</h2>
+              <p class="muted-light">Cheeryal (V), Keesara (M), Hyderabad · UGC Autonomous · NAAC A+ (subject to verification)</p>
+            </div>
+          </div>
+          <div>
+            <h1>GCET Placement Hub</h1>
+            <p class="tagline">Your Skills. Your Opportunities. Your Future.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="login-panel">
+        <div class="login-header">
+          <div class="header-logo-wrap">
+            <img src="images/gcet-logo.png" alt="GCET Official Logo" class="crest-logo-sm" />
+            <div>
+              <strong>GCET PLACEMENT HUB</strong>
+              <div class="muted">Java 21 Servlets · JDBC · MySQL 8</div>
+            </div>
+          </div>
+          <div class="header-actions-inline">
+            <button id="show-register-btn" class="btn-outline" type="button">New Student Registration</button>
+            <button id="login-theme-btn" class="btn-outline" type="button">Toggle Theme</button>
+          </div>
+        </div>
+
+        <form id="login-form" class="login-form">
+          <h2>Institutional Portal Sign In</h2>
+          <p class="muted">Select your portal role and sign in with verified college credentials.</p>
+
+          <div class="role-tabs" role="tablist" aria-label="Portal Access Roles">
+            <button type="button" class="role-tab active" data-role="ADMIN">Admin</button>
+            <button type="button" class="role-tab" data-role="FACULTY">Faculty</button>
+            <button type="button" class="role-tab" data-role="STUDENT">Students</button>
+            <button type="button" class="role-tab" data-role="RECRUITER">Recruiters</button>
+          </div>
+          <input id="login-role" type="hidden" value="ADMIN" />
+
+          <div id="login-error" class="alert-error hidden"></div>
+          <div id="login-success" class="alert-success hidden"></div>
+
+          <label>Username, Roll Number, or Email
+            <input id="login-identifier" type="text" required autocomplete="username" placeholder="e.g. principal.sagar / faculty_lavanya / 23r11a0501" />
+          </label>
+          <label>Password
+            <div class="pwd-input-wrap">
+              <input id="login-password" type="password" required autocomplete="current-password" placeholder="Enter your password" />
+              <button id="toggle-pwd-btn" class="btn-pwd-toggle" type="button" aria-label="Show password">Show</button>
+            </div>
+          </label>
+          <button id="login-submit-btn" type="submit" class="btn-primary">Sign In to Portal</button>
+        </form>
+
+        <form id="student-register-form" class="login-form hidden">
+          <div class="reg-header-row">
+            <h2>New Student Registration</h2>
+            <button id="back-to-login-btn" class="btn-outline" type="button">Back to Sign In</button>
+          </div>
+          <p class="muted">Register with your official GCET Roll Number. Your account activates immediately.</p>
+          <div id="register-error" class="alert-error hidden"></div>
+          <div class="reg-grid">
+            <label>Roll Number
+              <input id="reg-roll" type="text" required placeholder="e.g. 23R11A0599" />
+            </label>
+            <label>Full Name
+              <input id="reg-name" type="text" required placeholder="Student full name" />
+            </label>
+            <label>Official Email
+              <input id="reg-email" type="email" required placeholder="rollno@gcet.edu.in" />
+            </label>
+            <label>Phone Number
+              <input id="reg-phone" type="tel" required placeholder="10-digit mobile" />
+            </label>
+            <label>Branch
+              <select id="reg-branch" required>
+                <option value="CSE">CSE</option>
+                <option value="CSE-AIML">CSE-AIML</option>
+                <option value="CSE-DS">CSE-DS</option>
+                <option value="IOT">IOT</option>
+                <option value="IT">IT</option>
+                <option value="CS">CS</option>
+                <option value="ECE">ECE</option>
+                <option value="EEE">EEE</option>
+                <option value="MECH">MECH</option>
+                <option value="CIVIL">CIVIL</option>
+              </select>
+            </label>
+            <label>Graduation Year
+              <input id="reg-grad-year" type="number" min="2025" max="2032" value="2027" required />
+            </label>
+            <label>Current CGPA
+              <input id="reg-cgpa" type="number" step="0.01" min="0" max="10" value="8.0" required />
+            </label>
+            <label>Password (min 8 chars)
+              <div class="pwd-input-wrap">
+                <input id="reg-password" type="password" minlength="8" required autocomplete="new-password" placeholder="Create password" />
+                <button id="toggle-reg-pwd-btn" class="btn-pwd-toggle" type="button" aria-label="Show password">Show</button>
+              </div>
+            </label>
+          </div>
+          <button id="register-submit-btn" type="submit" class="btn-primary">Create Student Account</button>
+        </form>
+
+        <div class="muted login-footer">
+          GCET Career Connect &amp; Placement Hub · Powered by Apache Tomcat 10.1 + HikariCP + MySQL 8
+        </div>
+      </div>
+    </section>
+
+    <!-- Authenticated Portal Shell -->
+    <section id="portal-view" class="portal-shell <%= activeUser == null ? "hidden" : "" %>">
+      <aside class="sidebar">
+        <div class="brand-box">
+          <img src="images/gcet-logo.png" alt="GCET Official Logo" class="crest-logo-sidebar" />
+          <div class="brand-text">
+            <h3>GCET PLACEMENT HUB</h3>
+            <p class="muted-sidebar">Smart Placement Cell &amp; Skill Matrix</p>
+          </div>
+        </div>
+        <nav id="sidebar-nav" class="nav-list"></nav>
+        <button id="logout-btn" class="btn-danger-outline" type="button">Logout</button>
+      </aside>
+      <div class="main-area">
+        <header class="topbar">
+          <span id="breadcrumb-title" class="breadcrumb">Dashboard</span>
+          <div class="topbar-actions">
+            <button id="notif-quick-btn" class="btn-outline" type="button">Notifications (<span id="notif-badge">0</span>)</button>
+            <span id="user-display" class="muted"><%= activeUser != null ? activeName + " (" + activeRole + ")" : "" %></span>
+            <button id="theme-toggle-btn" class="btn-outline" type="button">Switch Theme</button>
+          </div>
+        </header>
+        <main id="module-content" class="content-area"></main>
+      </div>
+    </section>
+  </div>
+
+  <!-- Mandatory First-Login Password Change Modal -->
+  <div id="force-pwd-modal" class="modal-backdrop-custom hidden" role="dialog" aria-modal="true" aria-labelledby="force-pwd-title">
+    <div class="modal-card-custom">
+      <div class="d-flex align-items-center justify-content-between">
+        <span class="badge-info">Security Policy</span>
+        <button id="force-pwd-close-btn" type="button" class="btn-outline" style="padding:2px 8px;line-height:1.2;" aria-label="Close modal">&times;</button>
+      </div>
+      <h3 id="force-pwd-title" style="margin-top:8px;">Update Initial Password</h3>
+      <p class="muted" style="margin:6px 0 14px;">For institutional security, please replace your initial credential with a personal password (minimum 8 characters) to unlock portal modules.</p>
+      <div id="force-pwd-error" class="alert-error hidden" style="margin-bottom:10px;"></div>
+      <form id="force-pwd-form" class="d-flex flex-column gap-3">
+        <label>Current Password
+          <div class="pwd-input-wrap">
+            <input id="force-current-pwd" type="password" required autocomplete="current-password" placeholder="Enter current initial password" />
+            <button class="btn-pwd-toggle" data-target="force-current-pwd" type="button">Show</button>
+          </div>
+        </label>
+        <label>New Personal Password
+          <div class="pwd-input-wrap">
+            <input id="force-new-pwd" type="password" minlength="8" required autocomplete="new-password" placeholder="At least 8 characters" />
+            <button class="btn-pwd-toggle" data-target="force-new-pwd" type="button">Show</button>
+          </div>
+        </label>
+        <div class="d-flex gap-2 justify-content-end">
+          <button id="force-pwd-logout-btn" type="button" class="btn-outline">Sign Out</button>
+          <button id="force-pwd-submit-btn" type="submit" class="btn-primary">Save Password &amp; Continue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

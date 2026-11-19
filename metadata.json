@@ -1,0 +1,6 @@
+{
+  "name": "GCET Smart Placement Cell",
+  "description": "Skill Matrix & Placement Management Portal for Geethanjali College of Engineering and Technology.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
